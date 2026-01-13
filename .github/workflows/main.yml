@@ -1,0 +1,35 @@
+name: 自动给姥姥找短剧
+
+on:
+  schedule:
+    - cron: '0 22 * * *'  # 每天北京时间早上6点运行
+  workflow_dispatch:      # 允许手动运行
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 下载代码
+      uses: actions/checkout@v3
+
+    - name: 安装Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: 安装工具
+      run: pip install -r requirements.txt
+
+    - name: 开始抓取
+      run: python main.py
+
+    - name: 保存网页
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add index.html
+        git commit -m "更新短剧列表" || echo "没有新内容"
+        git push
