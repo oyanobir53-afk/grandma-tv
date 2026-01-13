@@ -3,7 +3,7 @@ import datetime
 import json
 
 def get_bilibili_videos():
-    # 保持搜索逻辑不变
+    # 保持抓取逻辑，抓取最新的热门短剧
     url = "https://api.bilibili.com/x/web-interface/search/type?search_type=video&keyword=短剧全集+一口气看完&order=click&duration=4"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
@@ -13,7 +13,7 @@ def get_bilibili_videos():
         r = requests.get(url, headers=headers)
         data = r.json()
         if 'data' in data and 'result' in data['data']:
-            return data['data']['result'][:10] # 为了页面流畅，只取前10个
+            return data['data']['result'][:20] # 抓20个，管够看一天
         else:
             return []
     except Exception as e:
@@ -21,81 +21,110 @@ def get_bilibili_videos():
         return []
 
 def generate_html(videos):
-    html = """
+    js_video_list = []
+    for v in videos:
+        title = v['title'].replace('<em class="keyword">','').replace('</em>','').replace('"', "'")
+        js_video_list.append({
+            "bvid": v['bvid'],
+            "title": title
+        })
+    
+    js_data = json.dumps(js_video_list, ensure_ascii=False)
+    
+    # 获取当前日期，用于判断列表是否更新了
+    today_str = datetime.datetime.now().strftime("%Y-%m-%d")
+
+    html = f"""
     <!DOCTYPE html>
     <html lang="zh-CN">
     <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>姥姥的电视</title>
     <style>
-        body { background-color: #000000; color: #ffff00; font-family: sans-serif; margin: 0; padding: 10px; }
-        h1 { text-align: center; font-size: 2rem; margin-bottom: 20px; color: #fff; }
+        body {{ background-color: #000; color: #fff; font-family: sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }}
+        .header {{ height: 8%; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: #888; background: #111; }}
+        .screen-container {{ flex: 1; width: 100%; background: #000; position: relative; }}
+        iframe {{ width: 100%; height: 100%; border: none; }}
         
-        .card { 
-            background: #1a1a1a; 
-            margin-bottom: 40px; 
-            border: 2px solid #333; 
-            border-radius: 15px;
-            overflow: hidden;
-            padding-bottom: 10px;
-        }
+        .video-info {{ height: 12%; padding: 0 15px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 1.1rem; color: #ffff00; font-weight: bold; background: #1a1a1a; border-bottom: 1px solid #333; }}
         
-        /* 视频容器，确保比例正确 */
-        .video-container {
-            position: relative;
-            width: 100%;
-            padding-bottom: 56.25%; /* 16:9 比例 */
-            height: 0;
-            background: #000;
-        }
-        
-        .video-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
-        
-        .title { 
-            font-size: 1.5rem; 
-            font-weight: bold; 
-            padding: 15px; 
-            color: #fff;
-            line-height: 1.3;
-        }
+        .controls {{ height: 20%; display: flex; gap: 10px; padding: 10px; box-sizing: border-box; background: #000; }}
+        .btn {{ flex: 1; border: none; border-radius: 10px; font-size: 1.4rem; font-weight: bold; display: flex; align-items: center; justify-content: center; }}
+        .btn-prev {{ background-color: #333; color: #ccc; }}
+        .btn-next {{ background-color: #ffff00; color: #000; font-size: 1.6rem; }} /* 下一个按钮更大更亮 */
     </style>
     </head>
     <body>
-        <h1>📺 今日推荐</h1>
-    """
-    
-    for v in videos:
-        # 这里的 bvid 就是视频的身份证
-        bvid = v['bvid']
-        title = v['title'].replace('<em class="keyword">','').replace('</em>','')
-        
-        # 嵌入代码核心：
-        # high_quality=1 (尝试高画质)
-        # danmaku=0 (关闭弹幕，防止遮挡)
-        # autoplay=0 (不自动播放，省流量)
-        iframe_src = f"https://player.bilibili.com/player.html?bvid={bvid}&page=1&high_quality=1&danmaku=0&autoplay=0"
-        
-        html += f"""
-        <div class="card">
-            <div class="video-container">
-                <iframe src="{iframe_src}" allowfullscreen="true"></iframe>
-            </div>
-            <div class="title">{title}</div>
+
+        <div class="header">📅 今日节目单 ({today_str})</div>
+
+        <div class="screen-container">
+            <iframe id="tv-screen" src="" allowfullscreen="true" allow="autoplay"></iframe>
         </div>
-        """
-        
-    html += f"""
-        <p style="text-align:center;color:#666;margin-top:30px">
-            更新时间: {datetime.datetime.now().strftime("%Y-%m-%d")}
-        </p>
+
+        <div class="video-info" id="tv-title">正在加载...</div>
+
+        <div class="controls">
+            <button class="btn btn-prev" onclick="changeChannel(-1)">上一个</button>
+            <button class="btn btn-next" onclick="changeChannel(1)">下一个 ▶️</button>
+        </div>
+
+        <script>
+            var playlist = {js_data};
+            var currentIndex = 0;
+            
+            // 【核心功能】读取记忆
+            function loadMemory() {{
+                var savedIndex = localStorage.getItem('grandma_tv_index');
+                var savedDate = localStorage.getItem('grandma_tv_date');
+                var todayDate = "{today_str}";
+
+                // 如果是同一天，就恢复进度
+                if (savedDate === todayDate && savedIndex !== null) {{
+                    currentIndex = parseInt(savedIndex);
+                    // 防止记录的索引超出了今天的列表长度
+                    if (currentIndex >= playlist.length) currentIndex = 0;
+                }} else {{
+                    // 如果是新的一天，重置为0，并更新日期
+                    currentIndex = 0;
+                    localStorage.setItem('grandma_tv_date', todayDate);
+                }}
+            }}
+
+            // 【核心功能】保存记忆
+            function saveMemory() {{
+                localStorage.setItem('grandma_tv_index', currentIndex);
+            }}
+
+            function loadVideo(index) {{
+                var video = playlist[index];
+                document.getElementById('tv-title').innerText = (index + 1) + ". " + video.title;
+                
+                // 拼接B站播放器链接
+                // t=0 从头播放
+                var src = "https://player.bilibili.com/player.html?bvid=" + video.bvid + "&page=1&high_quality=1&autoplay=1";
+                document.getElementById('tv-screen').src = src;
+                
+                // 每次换台都保存一下进度
+                saveMemory();
+            }}
+
+            function changeChannel(direction) {{
+                var newIndex = currentIndex + direction;
+                if (newIndex >= playlist.length) newIndex = 0; // 循环到底回开头
+                if (newIndex < 0) newIndex = playlist.length - 1;
+                currentIndex = newIndex;
+                loadVideo(currentIndex);
+            }}
+
+            window.onload = function() {{
+                if (playlist.length > 0) {{
+                    loadMemory(); // 网页一打开，先读记忆
+                    loadVideo(currentIndex);
+                }}
+            }};
+        </script>
     </body></html>
     """
     
