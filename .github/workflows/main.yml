@@ -1,15 +1,16 @@
-name: 自动给姥姥找短剧
+name: 自动更新姥姥电视  # <--- 这里改名了，以前叫“微信推送”
 
 on:
   schedule:
     - cron: '0 22 * * *'  # 每天北京时间早上6点运行
-  workflow_dispatch:      # 允许手动运行
+  workflow_dispatch:      # 允许你手动点击运行
 
+# 【关键】赋予写权限，用来保存历史记录和更新网页
 permissions:
   contents: write
 
 jobs:
-  build:
+  run-job:
     runs-on: ubuntu-latest
     steps:
     - name: 下载代码
@@ -20,16 +21,18 @@ jobs:
       with:
         python-version: '3.9'
 
-    - name: 安装工具
-      run: pip install -r requirements.txt
+    - name: 安装依赖
+      run: pip install requests
 
-    - name: 开始抓取
+    - name: 抓取短剧并生成网页
       run: python main.py
 
-    - name: 保存网页
+    - name: 保存更新到仓库
       run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add index.html
-        git commit -m "更新短剧列表" || echo "没有新内容"
+        git config --global user.name "GitHub Action"
+        git config --global user.email "action@github.com"
+        # 把生成的网页(index.html)和历史记录(history.json)存起来
+        git add index.html history.json
+        # 提交保存，如果没变化就不报错
+        git commit -m "日常更新: 节目单已更新" || echo "今天没有新内容"
         git push
