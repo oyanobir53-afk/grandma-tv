@@ -10,53 +10,41 @@
         .header { height: 8%; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: #888; background: #111; }
         .screen-container { flex: 1; width: 100%; background: #000; position: relative; }
         iframe { width: 100%; height: 100%; border: none; }
-        
         .video-info { height: 12%; padding: 0 15px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 1.1rem; color: #ffff00; font-weight: bold; background: #1a1a1a; border-bottom: 1px solid #333; }
-        
         .controls { height: 20%; display: flex; gap: 10px; padding: 10px; box-sizing: border-box; background: #000; }
         .btn { flex: 1; border: none; border-radius: 10px; font-size: 1.4rem; font-weight: bold; display: flex; align-items: center; justify-content: center; }
         .btn-prev { background-color: #333; color: #ccc; }
-        .btn-next { background-color: #ffff00; color: #000; font-size: 1.6rem; } /* 下一个按钮更大更亮 */
+        .btn-next { background-color: #ffff00; color: #000; font-size: 1.6rem; }
     </style>
     </head>
     <body>
-
-        <div class="header">📅 今日节目单 (2026-01-13)</div>
-
+        <div class="header">📅 今日新剧 (2026-01-13)</div>
         <div class="screen-container">
             <iframe id="tv-screen" src="" allowfullscreen="true" allow="autoplay"></iframe>
         </div>
-
         <div class="video-info" id="tv-title">正在加载...</div>
-
         <div class="controls">
             <button class="btn btn-prev" onclick="changeChannel(-1)">上一个</button>
             <button class="btn btn-next" onclick="changeChannel(1)">下一个 ▶️</button>
         </div>
 
         <script>
-            var playlist = [{"bvid": "BV1eM4y1j7V6", "title": "一口气看完【末世超市一二季全集】丧尸爆发！我把学校超市盘了下来，改成生存基地！"}, {"bvid": "BV1Uk4y1P7Y9", "title": "【9小时爽看】一口气看完沙雕动画【穿越斗罗，左手金箍棒右手盘古斧】已完结！"}, {"bvid": "BV1Aj411U7Xb", "title": "【44小时爽看】一口气看完同人爽文【穿越斗罗之灵珠神剑】完结版本！"}, {"bvid": "BV1nV411T7UH", "title": "一口气看完时长一小时五十分的《封校凝云》+《内鬼凝云》完整版，推理感极强的校园规则怪谈！"}, {"bvid": "BV1qEWhevE7d", "title": "爆肝18984个小时.一口气看完790集宗主徐不缺！"}, {"bvid": "BV1YM4m1m7ux", "title": "一口气看完《道诡异仙》1-84大合集完结版，八小时尊享李火旺精神患者的内心世界，未完待续....."}, {"bvid": "BV1TQ4y1J7BJ", "title": "一口气看完《道诡异仙》之后的故事，两小时尊享版，坐忘出品必属精品，未完待续....."}, {"bvid": "BV1MM4y147Li", "title": "全程一口气看完沙雕动画【我在村里烧大席】！"}, {"bvid": "BV14W4y1X7PG", "title": "一口气看完《你们休想污蔑我》1-27集，我被奶奶用迷药迷昏了，随后被脱光了衣服丢在干草垛，还联合同村何寡妇败坏我的名声，目的让我堂哥去当兵,这特么是亲奶奶嘛？"}, {"bvid": "BV1VNUaY6E9j", "title": "爽！一口气看完《遇卿欢》原创正版大合集！！"}, {"bvid": "BV1yM4y1L7tW", "title": "全程一口气看完沙雕动画【重生不当接盘侠，前世老婆她急了】已完结！"}, {"bvid": "BV1rN411S7yx", "title": "【12小时爽看】一口气看完沙雕动画【穿越大明，成了朱元璋好大儿】已完结！"}, {"bvid": "BV1qz42187ug", "title": "1-999集看全集，完结版动画，海王魂穿舔狗逆袭人生。"}, {"bvid": "BV1aF41197BT", "title": "【11小时爽看】一口气看完都市爽文【重生：一首神曲，从此娱乐圈顶流】！"}, {"bvid": "BV1mX4y1a76a", "title": "【81小时爽看】一口气看完穿越爽文【岳父朱棣，迎娶毁容郡主我乐麻了】纯享版！"}, {"bvid": "BV17cxYekEtf", "title": "一口气看完《废子夺嫡之强龙归来》兵王穿成废皇子朝堂智斗报母仇"}, {"bvid": "BV1Q8qjB4EK8", "title": "《斩仙台下，我震惊了诸神!》1-198集 全集完整版 免费爽看（官方授权）无删减大结局》1-198集 全集免费 （一口气看完大结局）"}, {"bvid": "BV1yz421o7VV", "title": "一口气看完《顾总的二婚娇妻》霸总甜蜜二婚爱情兜转还是她"}, {"bvid": "BV1pY411z7Z4", "title": "【9小时爽看】一口气看完沙雕动画【我只想安静的做个苟道中人】第1-126集！看爽漫拒绝带脑子。"}, {"bvid": "BV1yk4y157pm", "title": "全程一口气看完沙雕动画【媳妇要离婚，我偷偷摸摸赚了一千万】已完结！"}];
+            var playlist = [{"bvid": "BV1eM4y1j7V6", "title": "一口气看完【末世超市一二季全集】丧尸爆发！我把学校超市盘了下来，改成生存基地！"}, {"bvid": "BV1Uk4y1P7Y9", "title": "【9小时爽看】一口气看完沙雕动画【穿越斗罗，左手金箍棒右手盘古斧】已完结！"}, {"bvid": "BV1Aj411U7Xb", "title": "【44小时爽看】一口气看完同人爽文【穿越斗罗之灵珠神剑】完结版本！"}, {"bvid": "BV1nV411T7UH", "title": "一口气看完时长一小时五十分的《封校凝云》+《内鬼凝云》完整版，推理感极强的校园规则怪谈！"}, {"bvid": "BV1qEWhevE7d", "title": "爆肝18984个小时.一口气看完790集宗主徐不缺！"}, {"bvid": "BV1YM4m1m7ux", "title": "一口气看完《道诡异仙》1-84大合集完结版，八小时尊享李火旺精神患者的内心世界，未完待续....."}, {"bvid": "BV1TQ4y1J7BJ", "title": "一口气看完《道诡异仙》之后的故事，两小时尊享版，坐忘出品必属精品，未完待续....."}, {"bvid": "BV1MM4y147Li", "title": "全程一口气看完沙雕动画【我在村里烧大席】！"}, {"bvid": "BV14W4y1X7PG", "title": "一口气看完《你们休想污蔑我》1-27集，我被奶奶用迷药迷昏了，随后被脱光了衣服丢在干草垛，还联合同村何寡妇败坏我的名声，目的让我堂哥去当兵,这特么是亲奶奶嘛？"}, {"bvid": "BV1VNUaY6E9j", "title": "爽！一口气看完《遇卿欢》原创正版大合集！！"}, {"bvid": "BV1yM4y1L7tW", "title": "全程一口气看完沙雕动画【重生不当接盘侠，前世老婆她急了】已完结！"}, {"bvid": "BV1rN411S7yx", "title": "【12小时爽看】一口气看完沙雕动画【穿越大明，成了朱元璋好大儿】已完结！"}, {"bvid": "BV1qz42187ug", "title": "1-999集看全集，完结版动画，海王魂穿舔狗逆袭人生。"}, {"bvid": "BV1aF41197BT", "title": "【11小时爽看】一口气看完都市爽文【重生：一首神曲，从此娱乐圈顶流】！"}, {"bvid": "BV1mX4y1a76a", "title": "【81小时爽看】一口气看完穿越爽文【岳父朱棣，迎娶毁容郡主我乐麻了】纯享版！"}];
             var currentIndex = 0;
             
-            // 【核心功能】读取记忆
             function loadMemory() {
                 var savedIndex = localStorage.getItem('grandma_tv_index');
                 var savedDate = localStorage.getItem('grandma_tv_date');
                 var todayDate = "2026-01-13";
-
-                // 如果是同一天，就恢复进度
                 if (savedDate === todayDate && savedIndex !== null) {
                     currentIndex = parseInt(savedIndex);
-                    // 防止记录的索引超出了今天的列表长度
                     if (currentIndex >= playlist.length) currentIndex = 0;
                 } else {
-                    // 如果是新的一天，重置为0，并更新日期
                     currentIndex = 0;
                     localStorage.setItem('grandma_tv_date', todayDate);
                 }
             }
 
-            // 【核心功能】保存记忆
             function saveMemory() {
                 localStorage.setItem('grandma_tv_index', currentIndex);
             }
@@ -65,18 +53,16 @@
                 var video = playlist[index];
                 document.getElementById('tv-title').innerText = (index + 1) + ". " + video.title;
                 
-                // 拼接B站播放器链接
-                // t=0 从头播放
-                var src = "https://player.bilibili.com/player.html?bvid=" + video.bvid + "&page=1&high_quality=1&autoplay=1";
+                // 【核心修改】danmaku=0 关闭弹幕
+                var src = "https://player.bilibili.com/player.html?bvid=" + video.bvid + "&page=1&high_quality=1&autoplay=1&danmaku=0";
                 document.getElementById('tv-screen').src = src;
                 
-                // 每次换台都保存一下进度
                 saveMemory();
             }
 
             function changeChannel(direction) {
                 var newIndex = currentIndex + direction;
-                if (newIndex >= playlist.length) newIndex = 0; // 循环到底回开头
+                if (newIndex >= playlist.length) newIndex = 0;
                 if (newIndex < 0) newIndex = playlist.length - 1;
                 currentIndex = newIndex;
                 loadVideo(currentIndex);
@@ -84,7 +70,7 @@
 
             window.onload = function() {
                 if (playlist.length > 0) {
-                    loadMemory(); // 网页一打开，先读记忆
+                    loadMemory();
                     loadVideo(currentIndex);
                 }
             };
